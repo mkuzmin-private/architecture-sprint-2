@@ -3,7 +3,7 @@ name: mongo-sharding
 services:
   #сервер конфигурации
   configSrv:
-    image: mongo:latest # docker образ
+    image: dh-mirror.gitverse.ru/mongo:latest
     container_name: configSrv
     restart: always
     ports:
@@ -29,7 +29,7 @@ services:
 
   #1-й шард
   shard1:
-    image: mongo:latest # docker образ
+    image: dh-mirror.gitverse.ru/mongo:latest
     container_name: shard1
     restart: always
     ports:
@@ -55,7 +55,7 @@ services:
 
   #2-й шард
   shard2:
-    image: mongo:latest # docker образ
+    image: dh-mirror.gitverse.ru/mongo:latest
     container_name: shard2
     restart: always
     ports:
@@ -81,7 +81,7 @@ services:
 
   #роутер
   mongos_router:
-    image: mongo:latest # docker образ
+    image: dh-mirror.gitverse.ru/mongo:latest
     container_name: mongos_router
     restart: always
     ports:
