@@ -100,6 +100,9 @@ services:
       - configSrv
     ports:
       - 8080:8080
+    networks:
+      app-network:
+        ipv4_address: 173.17.0.1
     environment:
       MONGODB_URL: "mongodb://localhost:27020"
       MONGODB_DATABASE_NAME: "somedb"
