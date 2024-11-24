@@ -8,6 +8,8 @@ services:
     restart: always
     ports:
       - "27017:27017"
+    networks:
+      - mongo-sharding-network
     volumes:
       - config-data:/data/db
     command:
@@ -27,6 +29,8 @@ services:
     restart: always
     ports:
       - "27018:27018"
+    networks:
+      - mongo-sharding-network
     volumes:
       - shard1-data:/data/db
     command:
@@ -46,6 +50,8 @@ services:
     restart: always
     ports:
       - "27019:27019"
+    networks:
+      - mongo-sharding-network
     volumes:
       - shard2-data:/data/db
     command:
@@ -65,6 +71,8 @@ services:
     restart: always
     ports:
       - "27020:27020"
+    networks:
+      - mongo-sharding-network
     command:
       [
         "mongos",
@@ -88,9 +96,15 @@ services:
       - configSrv
     ports:
       - 8080:8080
+    networks:
+      - mongo-sharding-network
     environment:
       MONGODB_URL: "mongodb://localhost:27020"
       MONGODB_DATABASE_NAME: "somedb"
+
+networks:
+  mongo-sharding-network:
+    driver: bridge
 
 volumes:
   config-data:
