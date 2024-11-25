@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###
-# Инициализируем конфиг сервера
+# Инициализируем второй шард
 ###
 
 docker compose exec -T shard2 mongosh --port 27019 <<EOF

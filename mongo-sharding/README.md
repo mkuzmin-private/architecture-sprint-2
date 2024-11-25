@@ -1,17 +1,30 @@
-# pymongo-api
+# pymongo-api - шардированная версия
 
 ## Как запустить
 
-Запускаем mongodb и приложение
+1. Запускаем кластер mongodb и приложение
 
 ```shell
 docker compose up -d
 ```
 
-Заполняем mongodb данными
+2. Инициализируем конфиг. сервер mongodb
 
 ```shell
-./scripts/mongo-init.sh
+./scripts/configSrv-init.sh
+```
+
+3. Инициализируем шарды
+
+```shell
+./scripts/shard1-init.sh
+./scripts/shard2-init.sh
+```
+
+4. Инициализируем mongodb роутер, бд, и заполняем данными
+
+```shell
+./mongo-init.sh
 ```
 
 ## Как проверить

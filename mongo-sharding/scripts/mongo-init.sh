@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ###
-# Инициализируем бд
+# Инициализируем роутер, бд, и заполняем данными
 ###
 
 docker compose exec -T mongos_router mongosh --port 27020 <<EOF
