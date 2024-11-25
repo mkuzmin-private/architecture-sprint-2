@@ -1,4 +1,4 @@
-# pymongo-api - шардированная версия
+# Задание3: pymongo-api - шардированная версия с репликацией
 
 ## Как запустить
 
@@ -14,7 +14,7 @@ docker compose up -d
 ./scripts/configSrv-init.sh
 ```
 
-3. Инициализируем шарды
+3. Инициализируем шарды и их реплики
 
 ```shell
 ./scripts/shard1-init.sh

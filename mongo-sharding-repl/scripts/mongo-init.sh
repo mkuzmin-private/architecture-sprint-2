@@ -5,8 +5,8 @@
 ###
 
 docker compose exec -T mongos_router mongosh --port 27020 <<EOF
-sh.addShard( "shard1-rs/shard1:27018");
-sh.addShard( "shard2-rs/shard2:27019");
+sh.addShard( "shard1-rs/shard1:27027");
+sh.addShard( "shard2-rs/shard2:27037");
 sh.enableSharding("somedb");
 sh.shardCollection("somedb.helloDoc", { "name": "hashed" });
 use somedb;
