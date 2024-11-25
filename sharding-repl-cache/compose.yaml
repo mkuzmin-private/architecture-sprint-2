@@ -1,0 +1,226 @@
+name: sharding-repl-cache
+
+services:
+  #сервер конфигурации
+  configSrv:
+    image: mongo:latest # docker образ
+    container_name: configSrv
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    volumes:
+      - config-data:/data/db
+    command:
+      [
+        "--configsvr",  #запуск в режиме конфигурации
+        "--replSet",
+        "config_server",
+        "--bind_ip_all",
+        "--port",
+        "27017"
+      ]
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      start_period: 10s
+
+  #1-й шард и его реплики
+  shard1:
+    image: mongo:latest # docker образ
+    container_name: shard1
+    restart: always
+    ports:
+      - "27027:27027"
+    networks:
+      - app-network
+    volumes:
+      - shard1-data:/data/db
+    command:
+      [
+        "--shardsvr", #запуск в режиме шардинга
+        "--replSet",
+        "shard1-rs", #название реплики
+        "--bind_ip_all",
+        "--port",
+        "27027"
+      ]
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      start_period: 10s
+
+  shard1-replica1:
+    image: mongo:latest # docker образ
+    container_name: shard1-replica1
+    restart: always
+    ports:
+      - "27028:27028"
+    networks:
+      - app-network
+    volumes:
+      - shard1-replica1-data:/data/db
+    command:
+      [
+        "--shardsvr",
+        "--replSet",
+        "shard1-rs",
+        "--bind_ip_all",
+        "--port",
+        "27028"
+      ]
+
+  shard1-replica2:
+    image: mongo:latest # docker образ
+    container_name: shard1-replica2
+    restart: always
+    ports:
+      - "27029:27029"
+    networks:
+      - app-network
+    volumes:
+      - shard1-replica2-data:/data/db
+    command:
+      [
+        "--shardsvr",
+        "--replSet",
+        "shard1-rs",
+        "--bind_ip_all",
+        "--port",
+        "27029"
+      ]
+
+  #2-й шард и его реплики
+  shard2:
+    image: mongo:latest # docker образ
+    container_name: shard2
+    restart: always
+    ports:
+      - "27037:27037"
+    networks:
+      - app-network
+    volumes:
+      - shard2-data:/data/db
+    command:
+      [
+        "--shardsvr", #запуск в режиме шардинга
+        "--replSet",
+        "shard2-rs", #название реплик
+        "--bind_ip_all", # обратите внимание - она отличается от реплики 1-го шарда
+        "--port",
+        "27037"
+      ]
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      start_period: 10s
+
+  shard2-replica1:
+    image: mongo:latest # docker образ
+    container_name: shard2-replica1
+    restart: always
+    ports:
+      - "27038:27038"
+    networks:
+      - app-network
+    volumes:
+      - shard2-replica1-data:/data/db
+    command:
+      [
+        "--shardsvr",
+        "--replSet",
+        "shard2-rs",
+        "--bind_ip_all",
+        "--port",
+        "27038"
+      ]
+
+  shard2-replica2:
+    image: mongo:latest # docker образ
+    container_name: shard2-replica2
+    restart: always
+    ports:
+      - "27039:27039"
+    networks:
+      - app-network
+    volumes:
+      - shard2-replica2-data:/data/db
+    command:
+      [
+        "--shardsvr",
+        "--replSet",
+        "shard2-rs",
+        "--bind_ip_all",
+        "--port",
+        "27039"
+      ]
+
+  #роутер
+  mongos_router:
+    image: mongo:latest # docker образ
+    container_name: mongos_router
+    restart: always
+    ports:
+      - "27020:27020"
+    networks:
+      - app-network
+    command:
+      [
+        "mongos", #обычная mongo в режиме роутера
+        "--configdb",
+        "config_server/configSrv:27017", #передача данных сервера конфигурации
+        "--bind_ip_all",
+        "--port",
+        "27020"
+      ]
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 5s
+      start_period: 10s
+
+  # redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    volumes:
+      - redis_data:/data
+
+  #API
+  pymongo_api:
+    container_name: pymongo_api
+    build:
+      context: api_app
+      dockerfile: Dockerfile
+      platforms:
+        - "linux/amd64"
+    image: kazhem/pymongo_api:1.0.0
+    depends_on:
+      - mongos_router
+      - redis
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+    environment:
+      MONGODB_URL: "mongodb://mongos_router:27020"
+      MONGODB_DATABASE_NAME: "somedb"
+      REDIS_URL: "redis://redis:6379"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  config-data:
+  shard1-data:
+  shard1-replica1-data:
+  shard1-replica2-data:
+  shard2-data:
+  shard2-replica1-data:
+  shard2-replica2-data:
+  redis_data: {}
